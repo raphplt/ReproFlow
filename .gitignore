@@ -1,0 +1,27 @@
+node_modules/
+dist/
+.turbo/
+.next/
+coverage/
+*.tsbuildinfo
+*.log
+.DS_Store
+.env
+.env.*
+!.env.example
+!.env.*.example
+
+# Browser recordings and authentication artifacts may contain personal data.
+artifacts/
+recordings/
+playwright/.auth/
+playwright-report/
+test-results/
+blob-report/
+
+# Personal agent settings; shared instructions and skills stay versioned.
+.claude/settings.local.json
+CLAUDE.local.md
+.codex/*
+!.codex/config.toml
+.worktrees/

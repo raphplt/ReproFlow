@@ -1,0 +1,27 @@
+{
+  "name": "reproflow",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "license": "UNLICENSED",
+  "packageManager": "pnpm@10.34.5",
+  "engines": {
+    "node": ">=24 <25 || >=26 <27",
+    "pnpm": ">=10 <11"
+  },
+  "scripts": {
+    "build": "turbo run build",
+    "typecheck": "turbo run typecheck",
+    "test": "turbo run test",
+    "lint": "biome check .",
+    "format": "biome format --write .",
+    "agents:check": "node scripts/check-agents.mjs",
+    "check": "pnpm agents:check && pnpm lint && turbo run typecheck test build"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "2.5.14",
+    "turbo": "2.11.4",
+    "typescript": "5.9.3",
+    "vitest": "3.2.7"
+  }
+}
