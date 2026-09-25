@@ -1,5 +1,5 @@
-# Applications prévues
+# Applications
 
-`recorder` sera le premier outil local Chromium. `api` et `web` seront introduits
-quand le pipeline justifiera orchestration et interface. Aucun serveur applicatif
-n'est encore implémenté. Voir [l'architecture](../docs/architecture.md).
+`recorder` fournit la capture locale Chromium et l'export JSON de demo-shop.
+Depuis la racine : `pnpm demo`. `api` et `web` seront introduits lorsque le
+pipeline justifiera orchestration et interface. Voir [l'architecture](../docs/architecture.md).

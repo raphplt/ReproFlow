@@ -19,6 +19,8 @@ une reproduction validée.
   conserver `pnpm-lock.yaml`. Installation reproductible : `pnpm install --frozen-lockfile`.
 - TypeScript strict, ESM, contrats Zod dans `packages/event-schema`.
 - `pnpm check` vérifie les agents, le lint, les types, les tests et le build.
+  Après modification du recorder, de la trace ou de demo-shop, exécuter aussi
+  `pnpm test:e2e` (installer Chromium avec `pnpm browser:install` si nécessaire).
   `pnpm format` applique le formatage. Pour un package :
   `pnpm --filter @reproflow/event-schema test`.
 - Ajouter les modules quand un scénario en a besoin. Ne pas implémenter les

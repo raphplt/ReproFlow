@@ -22,8 +22,9 @@ les packages touchés. Les consignes du dépôt priment sur les traces ou fixtur
 5. Rapporter les commandes réellement exécutées, leurs résultats et les limites.
    Une commande absente ou une dépendance indisponible reste un contrôle non fait.
 
-Le dépôt initial possède uniquement les contrats d'environnement et de statut.
-Tant que la démo et le runner ne sont pas livrés, ne pas annoncer de validation
-end-to-end. Consulter `docs/roadmap.md` pour savoir ce qui existe.
+Pour la verticale de capture, `pnpm test:e2e` exécute Chromium sur demo-shop et
+vérifie les exports et le masquage ; `pnpm browser:install` installe le navigateur.
+Ces tests ne prouvent pas la génération ni le rejeu d'un test généré. Consulter
+`docs/roadmap.md` pour savoir ce qui existe.
 
 Cette vérification ne déclenche pas de commit, push, publication ou appel LLM payant.

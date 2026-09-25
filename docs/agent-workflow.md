@@ -22,9 +22,9 @@ Redémarrer la session si les nouveaux skills n'apparaissent pas ; dans Claude C
 
 Exemple pour commencer le chantier suivant :
 
-> Lis AGENTS.md et docs/roadmap.md. Commence M1 par demo-shop et le contrat de trace,
-> avec un scénario checkout déterministe et des données synthétiques. Vérifie le
-> comportement réalisé et mets à jour la roadmap avec les limites restantes.
+> Lis AGENTS.md, docs/capture.md et docs/roadmap.md. Commence M2 : reconstruis les
+> étapes déterministes à partir de la trace v1. Vérifie le comportement réalisé
+> et mets à jour la roadmap avec les limites restantes.
 
 ## Contexte durable
 

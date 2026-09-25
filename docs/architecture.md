@@ -2,12 +2,13 @@
 
 ## Périmètre actuel
 
-Le dépôt contient un workspace fonctionnel : `@reproflow/event-schema`.
-Il expose un contrat d'environnement Chromium validé par Zod et les états de
-recording/reproduction du brief. Il ne définit pas encore le format des événements,
-la session complète ni la classification détaillée d'un run.
+Trois workspaces sont fonctionnels : `event-schema` (contrat de trace v1),
+`demo-shop` (serveur HTTP local, checkout buggé/corrigé) et `recorder` (Chromium,
+contrôles injectés et export). Le recorder orchestre sa fixture demo-shop pour
+fournir une commande locale unique. Il ne constitue pas un runner de code généré.
 
-Les autres composants ci-dessous sont **prévus**, pas implémentés.
+Reconstruction, génération, IA, API, dashboard et runner restent **prévus**.
+Le contrat de capture et ses limites sont décrits dans [capture.md](capture.md).
 
 ## Pipeline cible du MVP
 
@@ -29,13 +30,17 @@ demo-shop → recorder → événements expurgés → session normalisée
 | `apps/api` | Orchestration et persistance quand nécessaires |
 | `apps/web` | Rapport et navigation projets/recordings/reproductions |
 
-Le premier recorder sera local et piloté par Playwright pour limiter les contraintes
+Le premier recorder est local et piloté par Playwright pour limiter les contraintes
 d'une extension. Revoir ce choix si la première capture exige une session navigateur
 existante ; noter alors la décision avant d'introduire un second mécanisme.
 
 Les packages de contrats et de normalisation doivent rester utilisables sans
 framework web, base de données ni fournisseur LLM. Les dépendances vont des
 applications vers les packages, jamais l'inverse.
+
+L'injection et le collecteur restent dans `apps/recorder` pour cette première
+verticale. Extraire `recorder-core` lorsque la réutilisation par un second point
+d'entrée le justifiera. Les assets de demo-shop sont servis depuis `public/`.
 
 ## Validation et oracle
 
