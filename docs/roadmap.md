@@ -2,64 +2,58 @@
 
 ## État actuel
 
-- [x] Workspace pnpm / Turborepo, TypeScript strict et Biome.
-- [x] Contrats initiaux d'environnement et de statut avec tests unitaires.
-- [x] Instructions et skills communs pour Codex et Claude Code.
-- [x] Workflow CI pour Node 24 / 26, contrôles et capture Chromium headless.
-- [x] Brief original, architecture et décision de socle.
+**POC/MVP local demo-shop opérationnel.** La capture réelle génère un test qui
+reproduit le bug trois fois puis passe trois fois sur la variante corrigée,
+sans modifier la source ni l'oracle. Cette acceptation est automatisée dans
+`apps/workbench/e2e/pipeline.test.ts` et exécutée par `pnpm test:pipeline`.
 
-## M1 — Première verticale de capture (livrée pour la démo)
+## M1 — Capture livrée
 
-- [x] Construire `examples/demo-shop` : panier, édition d'adresse, checkout.
-- [x] Fournir un état initial reproductible et un bug volontaire déterministe après
-  modification du code postal ; conserver un mode corrigé pour la validation.
-- [x] Définir la trace versionnée : identifiants, horodatages avec unité explicite,
-  ordre des événements, environnement et test IDs connus des cibles de démo.
-- [x] Créer le recorder local Chromium avec start/stop, navigation, clics, saisies,
-  soumissions, console et métadonnées réseau pertinentes.
-- [x] Tester le masquage avant tout stockage/export, y compris les URL et logs.
-- [x] Permettre de marquer l'état cassé et de confirmer explicitement `/checkout`.
+- [x] Workspace strict, contrats Zod, CI Node 24 / 26.
+- [x] Boutique synthétique, état initial reproductible, mode corrigé.
+- [x] Recorder Chromium manuel, événements ordonnés, masquage avant export.
+- [x] Marqueur cassé et confirmation explicite de `/checkout`.
+- [x] Tests navigateur de capture, confidentialité et annulation.
 
-**Acceptation :** enregistrer le scénario checkout, exporter une trace structurée
-validée, ordonnée et expurgée, puis la relire sans avoir accès au navigateur initial.
+## M2 — Reconstruction livrée pour la fixture
 
-Les tests Chromium couvrent cette acceptation, le mode corrigé, le masquage et
-l'annulation. La capture reste limitée à demo-shop : politique configurable,
-oracles libres, sélecteurs sémantiques génériques et autres applications ne sont
-pas encore pris en charge. Voir `docs/capture.md`.
+- [x] Actions ordonnées et liens vers les événements sources.
+- [x] Saisies contiguës et submit dédoublonné, navigation observée conservée.
+- [x] Rejet des captures incomplètes, valeurs finales masquées et cibles inconnues.
+- [x] Aucun fournisseur LLM requis.
 
-## M2 — Reconstruction (prochain chantier)
+## M3 — Génération livrée
 
-Transformer une trace en étapes significatives sans perdre les changements d'état.
-Tester plusieurs saisies successives, navigation, rerender et cible ambiguë.
-Le noyau déterministe fonctionne sans fournisseur LLM.
+- [x] Test Playwright ESM lisible, téléchargeable, source déterministe.
+- [x] Oracle confirmé conservé ; fixture et viewport explicites.
+- [x] Hash du fichier conservé pour chaque exécution.
 
-## M3 — Génération
+## M4 — Runner livré
 
-Produire un test Playwright lisible à partir d'un scénario et d'un oracle confirmé.
-Valider les sorties du fournisseur et expliciter les préconditions/fixtures.
+- [x] Docker non root, filesystem readonly, sans volumes hôte ni réseau externe.
+- [x] Limites de durée, mémoire, CPU, processus, tmpfs et sorties.
+- [x] Reporter à preuves structurées expurgées ; annulation et nettoyage.
+- [x] Tests effectifs du refus d'écriture et d'accès réseau.
 
-## M4 — Exécution
+## M5 — Validation livrée
 
-Exécuter le test dans un runner isolé, collecter assertions, console, échecs réseau
-et artefacts expurgés. Limiter durée et tentatives.
+- [x] Distinction bug, réussite, génération, infrastructure et non-conclusion.
+- [x] Décomptes observés ; variabilité uniquement dans des runs comparables.
+- [x] Acceptation centrale : même test rouge sur bug, vert après correction.
 
-## M5 — Validation
+## M6 — Interface locale livrée
 
-Distinguer bug reproduit, absence de reproduction, génération et infrastructure.
-Présenter les résultats observés sur plusieurs runs comparables.
+- [x] Projet Demo Shop, capture manuelle, démo automatisée et import JSON.
+- [x] Historique persistant, rapport détaillé, téléchargement test/trace/preuves.
+- [x] Relance, annulation et rapport HTML autonome.
+- [x] Vérifications navigateur aux formats ordinateur et mobile.
 
-**Critère de réussite central :** enregistrer le bug de demo-shop, générer un test,
-observer son échec pertinent, corriger l'application, puis faire passer **exactement
-le même test**. Ce critère n'est pas encore atteint.
+## Prochaine étape après ce POC
 
-## M6 — Interface produit
+Choisir une deuxième application synthétique pour définir une politique de
+capture configurable, des sélecteurs sémantiques et un contrat de fixtures plus
+générique. Étendre la preuve avant d'introduire une orchestration distante.
 
-Projets, recordings, reproductions et rapport détaillé ; intégrer la persistance
-et l'orchestration nécessaires au workflow déjà prouvé.
-
-## Après MVP
-
-GitHub (M7 / V1.5), import de sessions existantes, autres frameworks et correction
-automatique restent hors périmètre initial. Aucun chantier de billing, SSO ou
-session replay vidéo complet avant la preuve du workflow principal.
+Restent hors du MVP local : applications arbitraires, comptes et projets multiples,
+LLM, réparation automatique, screenshots/traces Playwright de pages utilisateur,
+intégrations GitHub (V1.5), import de sessions tierces et correction automatique.

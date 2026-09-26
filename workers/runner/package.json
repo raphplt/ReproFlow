@@ -1,23 +1,24 @@
 {
-  "name": "@reproflow/recorder",
+  "name": "@reproflow/runner",
   "version": "0.0.0",
   "private": true,
   "type": "module",
   "exports": {
     ".": {
-      "types": "./dist/recorder.d.ts",
-      "import": "./dist/recorder.js"
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
     }
   },
   "scripts": {
     "build": "tsc -p tsconfig.build.json",
     "typecheck": "tsc --noEmit",
     "test": "vitest run src",
-    "test:e2e": "vitest run e2e --testTimeout=30000 --hookTimeout=30000"
+    "test:e2e": "vitest run e2e --testTimeout=120000"
   },
   "dependencies": {
-    "@reproflow/event-schema": "workspace:*",
     "@reproflow/demo-shop": "workspace:*",
-    "playwright": "1.63.0"
+    "@reproflow/event-schema": "workspace:*",
+    "@reproflow/playwright-generator": "workspace:*",
+    "@playwright/test": "1.63.0"
   }
 }

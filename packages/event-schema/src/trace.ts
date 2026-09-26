@@ -103,6 +103,13 @@ export const RecordingTraceSchema = z
         marker.timestampMs > trace.endedAtMs
       )
         invalid("Broken-state marker outside recording");
+      const before = trace.events[marker.afterSequence];
+      const after = trace.events[marker.afterSequence + 1];
+      if (
+        (before && before.timestampMs > marker.timestampMs) ||
+        (after && after.timestampMs < marker.timestampMs)
+      )
+        invalid("Broken-state marker does not match event order");
     }
     if (
       trace.status === "captured" &&

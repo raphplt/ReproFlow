@@ -36,6 +36,30 @@ importers:
         specifier: 1.63.0
         version: 1.63.0
 
+  apps/workbench:
+    dependencies:
+      '@reproflow/demo-shop':
+        specifier: workspace:*
+        version: link:../../examples/demo-shop
+      '@reproflow/event-schema':
+        specifier: workspace:*
+        version: link:../../packages/event-schema
+      '@reproflow/playwright-generator':
+        specifier: workspace:*
+        version: link:../../packages/playwright-generator
+      '@reproflow/reconstruction':
+        specifier: workspace:*
+        version: link:../../packages/reconstruction
+      '@reproflow/recorder':
+        specifier: workspace:*
+        version: link:../recorder
+      '@reproflow/runner':
+        specifier: workspace:*
+        version: link:../../workers/runner
+      playwright:
+        specifier: 1.63.0
+        version: 1.63.0
+
   examples/demo-shop: {}
 
   packages/event-schema:
@@ -43,6 +67,33 @@ importers:
       zod:
         specifier: 4.6.5
         version: 4.6.5
+
+  packages/playwright-generator:
+    dependencies:
+      '@reproflow/event-schema':
+        specifier: workspace:*
+        version: link:../event-schema
+
+  packages/reconstruction:
+    dependencies:
+      '@reproflow/event-schema':
+        specifier: workspace:*
+        version: link:../event-schema
+
+  workers/runner:
+    dependencies:
+      '@playwright/test':
+        specifier: 1.63.0
+        version: 1.63.0
+      '@reproflow/demo-shop':
+        specifier: workspace:*
+        version: link:../../examples/demo-shop
+      '@reproflow/event-schema':
+        specifier: workspace:*
+        version: link:../../packages/event-schema
+      '@reproflow/playwright-generator':
+        specifier: workspace:*
+        version: link:../../packages/playwright-generator
 
 packages:
 
@@ -268,6 +319,11 @@ packages:
     cpu: [x64]
     os: [linux]
     libc: [glibc]
+
+  '@playwright/test@1.63.0':
+    resolution: {integrity: sha512-oxMK4vllB9RK5NQ2l1pq1IfOf2AvnEuj/vYGDj0H2nMtmtZpKtCwt/l00GEO6xjGfpBNAvjovvYdCm50dRQkpQ==}
+    engines: {node: '>=20'}
+    hasBin: true
 
   '@rollup/rollup-android-arm-eabi@4.63.5':
     resolution: {integrity: sha512-J25QJU+B78T4FhhBsNpLJyVWOi31mwtpcMwywHmOKH65Q9IWGA81gPj+dnwlhU8wktVriYE+tFAaQgrnJRzAZg==}
@@ -836,6 +892,10 @@ snapshots:
 
   '@napi-rs/lzma-linux-x64-gnu@1.5.1':
     optional: true
+
+  '@playwright/test@1.63.0':
+    dependencies:
+      playwright: 1.63.0
 
   '@rollup/rollup-android-arm-eabi@4.63.5':
     optional: true

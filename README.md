@@ -2,104 +2,103 @@
 
 > Turn recorded bug reproductions into executable regression tests.
 
-ReproFlow transforme une reproduction manuelle de bug web en test Playwright,
-puis l'exécute pour vérifier que le bug est réellement reproduit.
-
-```text
-Reproduction enregistrée → Trace structurée → Reconstruction
-→ Test Playwright → Exécution isolée → Résultat observé
-```
-
-**État : première verticale de capture utilisable.** Une boutique locale avec bug
-volontaire, un recorder Chromium et un export JSON versionné sont disponibles.
-La génération de tests, l'IA et le runner de validation restent à construire.
+**POC/MVP local fonctionnel pour Demo Shop.** Enregistrer le bug, générer un test
+Playwright, l'exécuter dans Docker et consulter les preuves. Le même fichier
+échoue sur la boutique buggée puis passe sur sa variante corrigée.
 
 ## Démarrage
 
-Prérequis : Node **24.x ou 26.x** (référence 24.14.0 dans `.nvmrc` / `.node-version`) et
-pnpm **10.34.5** (`packageManager`). Ton Node 26 existant convient ; avec nvm,
-`nvm install && nvm use` sélectionne la référence Node 24.
+Prérequis : Node **24 ou 26**, pnpm **10.34.5**, Docker démarré. `.nvmrc`
+conserve la référence Node 24. Aucun compte, secret ou appel LLM n'est nécessaire.
 
 ```sh
 pnpm install --frozen-lockfile
-pnpm check
 pnpm browser:install
-pnpm demo
+pnpm runner:build
+pnpm dev
 ```
 
-Aucun service externe, Docker ou secret n'est requis. `pnpm demo` démarre la
-boutique sur un port local libre et ouvre Chromium ; une session graphique est
-nécessaire. Les tests navigateur fonctionnent aussi sans affichage.
+Ouvrir l'URL locale indiquée dans le terminal. **Exécuter la démo** enregistre le
+scénario synthétique avec Chromium headless puis lance trois runs buggés et trois
+runs corrigés. Le rapport indique les résultats réels et le SHA-256 du test.
 
-## Première capture
+Pour produire directement cette preuve sans serveur d'interface :
 
-1. Cliquer **Démarrer la capture** : le panier est réinitialisé.
-2. Modifier l’adresse, saisir **69001**, puis enregistrer.
-3. Cliquer **Passer commande** : le bug apparaît, l’URL reste `/cart`.
-4. Confirmer que le comportement attendu est `/checkout`, puis **Marquer cet état
-   comme cassé**.
-5. Cliquer **Arrêter et exporter**. Le terminal indique le fichier
-   `artifacts/recordings/<id>.json` ; le navigateur et le serveur sont fermés.
+```sh
+pnpm poc
+```
 
-`pnpm demo --fixed` lance la variante corrigée : les mêmes actions atteignent
-`/checkout`. Fermer Chromium ou faire Ctrl+C annule sans export.
+Le terminal indique le fichier `artifacts/reproductions/<id>/report.html`,
+consultable directement dans un navigateur. Un échec du critère rouge/vert
+produit un code de sortie non nul. Docker/image indisponible donne un rapport
+d'infrastructure, jamais un faux succès.
 
-Cette politique de capture est **spécifique à la démo synthétique**. Elle conserve
-les test IDs connus et seulement les valeurs `75001` / `69001`. Les URL sont réduites
-à des chemins autorisés ; textes libres, headers et corps réseau ne sont pas
-exportés. Un arrêt sans marqueur ou après dépassement de 2 000 événements produit
-une trace `incomplete`. `captured` signifie capture complète, **pas bug reproduit**.
-Voir [le contrat et les limites](docs/capture.md).
+## Enregistrer manuellement
 
-## Commandes
+Depuis l'interface : **Enregistrer un bug**, ou utiliser `pnpm demo`.
 
-| Commande | Usage |
-| --- | --- |
-| `pnpm check` | Vérification des agents, lint, types, tests et build |
-| `pnpm browser:install` | Installer Chromium pour la démo et les tests |
-| `pnpm demo` | Boutique buggée + recorder interactif |
-| `pnpm demo --fixed` | Même boutique avec checkout corrigé |
-| `pnpm test:e2e` | Tests réels Chromium, sans affichage |
-| `pnpm test` | Tests unitaires des packages |
-| `pnpm typecheck` | Vérification TypeScript |
-| `pnpm build` | Compilation des packages |
-| `pnpm lint` | Lint et contrôle de formatage Biome |
-| `pnpm format` | Formatage automatique |
-| `pnpm agents:check` | Cohérence des instructions et skills partagés |
+1. Dans Chromium, **Démarrer la capture** : le panier est réinitialisé.
+2. Modifier l'adresse, saisir **69001**, puis enregistrer.
+3. Cliquer **Passer commande** : erreur, URL `/cart`.
+4. Confirmer l'attendu `/checkout`, puis **Marquer cet état comme cassé**.
+5. **Arrêter et exporter** : génération et exécutions démarrent automatiquement.
+
+Fermer Chromium annule la capture. L'interface permet aussi d'annuler le workflow
+et de relancer une reproduction conservée. La capture manuelle nécessite une
+session graphique ; la démo automatique et les tests sont headless.
+
+`pnpm capture` conserve l'ancien parcours d'export seul, sans Docker.
+`pnpm capture --fixed` ouvre la variante corrigée. Une trace exportée peut être
+importée dans l'interface ou avec `pnpm reproduce chemin/trace.json`.
+
+## Résultats et limites
+
+Le rapport sépare échec de l'oracle, sélecteur inexploitable, infrastructure et
+preuve non concluante. « Bug reproduit » exige les étapes terminées, l'URL
+enregistrée, le POST 500 et le code console connu. Les variantes buggée et corrigée
+ne sont jamais mélangées pour déduire une variabilité.
+
+Le périmètre est **demo-shop-v1**, avec test IDs connus, codes postaux fictifs
+`75001` / `69001` et oracle `/checkout` confirmé. Pas de capture de site arbitraire,
+de compte utilisateur ou de fournisseur IA. Une valeur finale masquée, une cible
+inconnue ou une capture incomplète bloque la reconstruction.
+
+Le test exporté utilise `@playwright/test` **1.63.0** et un `baseURL` pointant sur
+une fixture Demo Shop fraîche. Il est éditable dans un projet Playwright, mais le
+runner du POC accepte exclusivement le test canonique du générateur. Son
+isolation et ses limites sont documentées dans
+[la décision runner](docs/decisions/0003-local-proof-pipeline.md).
+
+## Vérifier
+
+```sh
+pnpm check
+pnpm test:e2e
+pnpm test:pipeline
+```
+
+`check` couvre agents, lint, types, tests unitaires et build. `test:e2e` vérifie la
+capture Chromium. `test:pipeline` nécessite l'image construite et vérifie
+l'isolation, les classifications négatives et la preuve rouge/vert avec le même
+test, puis l'interface sur ordinateur et mobile. Après un changement du runner,
+des contrats, du générateur ou de la fixture, relancer `pnpm runner:build`.
 
 ## Organisation
 
-```text
-apps/recorder/            Capture Chromium, contrôles et export JSON
-packages/event-schema/    Environnement, états et contrat de trace v1
-workers/                  Futur runner isolé
-examples/demo-shop/       Boutique locale, modes buggé et corrigé
-docs/                     Brief produit, architecture, décisions et roadmap
-.agents/skills/           Workflows communs aux agents
-.claude/skills/           Liens vers les mêmes workflows pour Claude Code
-```
+| Emplacement | Rôle |
+| --- | --- |
+| `apps/recorder` | Capture, contrôles et masquage |
+| `apps/workbench` | Interface locale, CLI, orchestration et historique |
+| `packages/event-schema` | Contrats versionnés |
+| `packages/reconstruction` | Trace vers scénario |
+| `packages/playwright-generator` | Scénario vers test et hash |
+| `workers/runner` | Docker, preuves et classification |
+| `examples/demo-shop` | Fixture buggée/corrigée |
 
-Le prochain objectif est la **reconstruction déterministe des étapes à partir de
-la trace**, puis la génération d'un test Playwright.
+Les données locales sont dans `artifacts/`, ignoré par Git. Aucun service distant
+n'est provisionné. La licence open source reste à décider ; packages privés et
+`UNLICENSED`.
 
-## Codex et Claude Code
-
-Les règles communes sont dans [AGENTS.md](AGENTS.md).
-[CLAUDE.md](CLAUDE.md) les importe pour Claude Code.
-
-- Codex : `$reproflow-verify` et `$reproflow-review`.
-- Claude Code : `/reproflow-verify` et `/reproflow-review`.
-
-Voir le [guide agents](docs/agent-workflow.md) pour le fonctionnement, RTK et la
-reprise de travail. Aucun modèle, secret, serveur MCP ou hook global n'est imposé.
-
-## Références projet
-
-- [Brief produit original](docs/product-brief.md)
-- [Architecture et limites actuelles](docs/architecture.md)
-- [Roadmap et critère de réussite](docs/roadmap.md)
-- [Choix du socle](docs/decisions/0001-repository-foundation.md)
-- [Contribuer](CONTRIBUTING.md)
-
-Le choix d'une licence open source reste à décider ; les packages sont privés et
-marqués `UNLICENSED` en attendant.
+[Architecture](docs/architecture.md) · [Roadmap](docs/roadmap.md) ·
+[Brief original](docs/product-brief.md) · [Capture](docs/capture.md) ·
+[Instructions agents](AGENTS.md) · [Guide agents](docs/agent-workflow.md)

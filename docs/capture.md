@@ -2,14 +2,14 @@
 
 ## Workflow
 
-`pnpm demo` compile le workspace, démarre demo-shop sur `127.0.0.1` avec un port
+`pnpm capture` compile le workspace, démarre demo-shop sur `127.0.0.1` avec un port
 libre, et ouvre un Chromium non persistant. Le panneau ReproFlow est injecté dans
 un Shadow DOM. Démarrer réinitialise la page `/cart` ; les interactions antérieures
 ne sont pas conservées. L'export ferme le navigateur et le serveur.
 
 Le bug de démo est déclenché par l'enregistrement de l'adresse avant checkout.
 Le serveur renvoie alors HTTP 500 et le frontend affiche une erreur. Avec
-`pnpm demo --fixed`, la même requête réussit et le navigateur atteint `/checkout`.
+`pnpm capture --fixed`, la même requête réussit et le navigateur atteint `/checkout`.
 L'oracle n'est enregistré qu'après confirmation explicite et clic sur le marqueur.
 
 ## Contrat v1
@@ -33,12 +33,14 @@ Le contrat Zod `RecordingTraceSchema` est dans `@reproflow/event-schema`.
 
 Les timestamps ne prétendent pas reconstituer un ordre causal entre les signaux
 DOM et réseau. Les événements bruts, notamment clic + soumission et notifications
-de navigation, seront regroupés au milestone de reconstruction.
+de navigation, sont traités par `packages/reconstruction` selon la politique
+décrite dans [l'architecture](architecture.md).
 
 Les fichiers sont validés avant écriture, créés sans écrasement (`wx`) avec droits
 `0600`, sous `artifacts/recordings/`, ignoré par Git. Fermer le navigateur avant
-l'export annule la session. Les valeurs masquées exigent une fixture lors d'un futur
-rejeu ; elles ne doivent jamais être transformées en une saisie littérale.
+l'export annule la session. Une valeur finale masquée bloque la reconstruction ;
+elle n'est jamais transformée en saisie littérale. Le pipeline complet (`pnpm demo`)
+conserve aussi la trace dans `artifacts/reproductions/<id>/recording.json`.
 
 ## Politique de données
 
@@ -66,6 +68,6 @@ non fiables : une trace seule ne prouve pas qu'un bug a été reproduit.
 et la compilation. `pnpm test:e2e` exerce le vrai Chromium sans affichage : parcours
 buggé/corrigé, export/relecture, masquage, réinitialisation et annulation.
 
-Les assertions des tests de développement diffèrent selon le mode attendu de la
-fixture. Aucun test de régression n'est encore généré depuis la trace : la preuve
-« même test rouge puis vert après correction » reste un jalon ultérieur.
+`pnpm test:pipeline` complète ces tests : capture réelle, génération d'un seul
+test, trois échecs pertinents sur la fixture buggée puis trois réussites sur la
+fixture corrigée, sous Docker. Le hash du test et l'oracle restent identiques.

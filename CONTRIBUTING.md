@@ -2,6 +2,8 @@
 
 Suivre le démarrage du README. La même commande `pnpm check` s'exécute localement
 et dans GitHub Actions, sans identifiants de services externes.
+Pour le pipeline, construire l'image avec `pnpm runner:build` puis exécuter
+`pnpm test:pipeline`. La capture reste couverte par `pnpm test:e2e`.
 
 ## Une modification
 

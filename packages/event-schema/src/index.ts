@@ -1,6 +1,7 @@
 import { z } from "zod";
 
 export * from "./environment.js";
+export * from "./reproduction.js";
 export * from "./trace.js";
 
 export const RecordingStatusSchema = z.enum([

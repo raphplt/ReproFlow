@@ -1,0 +1,21 @@
+{
+  "name": "@reproflow/workbench",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run src",
+    "test:e2e": "vitest run e2e --testTimeout=180000"
+  },
+  "dependencies": {
+    "@reproflow/demo-shop": "workspace:*",
+    "@reproflow/event-schema": "workspace:*",
+    "@reproflow/recorder": "workspace:*",
+    "@reproflow/reconstruction": "workspace:*",
+    "@reproflow/playwright-generator": "workspace:*",
+    "@reproflow/runner": "workspace:*",
+    "playwright": "1.63.0"
+  }
+}
