@@ -48,11 +48,26 @@ sans modifier la source ni l'oracle. Cette acceptation est automatisée dans
 - [x] Relance, annulation et rapport HTML autonome.
 - [x] Vérifications navigateur aux formats ordinateur et mobile.
 
-## Prochaine étape après ce POC
+## M7 — Premier pilote produit réel, vers la V1
 
-Choisir une deuxième application synthétique pour définir une politique de
-capture configurable, des sélecteurs sémantiques et un contrat de fixtures plus
-générique. Étendre la preuve avant d'introduire une orchestration distante.
+- [x] Composant réel TCG Nexus, parent React synthétique, sans base ni secrets.
+- [x] Capture scriptée de saisie numérique et oracle explicite de valeur de champ.
+- [x] Cibles configurées : test ID, rôle/nom, label, placeholder exact et unique.
+- [x] Rejeu du bundle dans le runner isolé, classification et preuves expurgées.
+- [x] Commande locale `pnpm pilot:tcg`, artefacts et provenance des sources.
+- [x] Prix minimum et maximum : chacun reproduit 3/3 fois, puis corrigé 3/3 fois
+  avec le même test ; correctif TCG conservé uniquement sur une branche locale.
+- [x] Environnement jetable du marketplace complet Next.js/API/PostgreSQL et données synthétiques.
+- [x] Prix minimum et maximum sur l'application complète : chacun rouge 3/3 puis
+  vert 3/3, avec réponses API et navigation vérifiées avant l'oracle.
+- [ ] Capture **manuelle** configurable sur ce parcours réel.
+- [ ] Configuration du projet et rapports de ce pilote intégrés au workbench.
+
+Le [guide composant](tcg-nexus-pilot.md) et le [guide application complète](tcg-nexus-stack-pilot.md)
+distinguent les deux périmètres. Aucun push vers TCG Nexus n'est autorisé.
+Ce jalon étend le POC ; il ne constitue pas encore une V1 utilisable sur n'importe
+quelle application. La prochaine étape est la capture manuelle configurable
+sur ce parcours, puis ses rapports dans le workbench, avant une orchestration distante.
 
 Restent hors du MVP local : applications arbitraires, comptes et projets multiples,
 LLM, réparation automatique, screenshots/traces Playwright de pages utilisateur,

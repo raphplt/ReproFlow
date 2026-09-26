@@ -69,6 +69,15 @@ runner du POC accepte exclusivement le test canonique du générateur. Son
 isolation et ses limites sont documentées dans
 [la décision runner](docs/decisions/0003-local-proof-pipeline.md).
 
+## Pilote TCG Nexus
+
+Deux pilotes locaux étendent le POC : le [composant réel](docs/tcg-nexus-pilot.md)
+et le [marketplace Next.js/API/PostgreSQL complet](docs/tcg-nexus-stack-pilot.md).
+Ils vérifient le défaut du zéro dans les filtres de prix, avec le même test avant
+et après correction. Le second utilise une base synthétique jetable et aucun
+réseau externe pendant les runs. Ils restent scriptés, hors du workbench.
+Les guides décrivent les commandes ; aucun push vers TCG Nexus n'est autorisé.
+
 ## Vérifier
 
 ```sh

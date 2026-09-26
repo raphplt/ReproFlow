@@ -1,5 +1,6 @@
 import { z } from "zod";
 
+export * from "./element.js";
 export * from "./environment.js";
 export * from "./reproduction.js";
 export * from "./trace.js";

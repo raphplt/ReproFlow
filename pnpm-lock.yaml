@@ -94,6 +94,9 @@ importers:
       '@reproflow/playwright-generator':
         specifier: workspace:*
         version: link:../../packages/playwright-generator
+      '@reproflow/recorder':
+        specifier: workspace:*
+        version: link:../../apps/recorder
 
 packages:
 

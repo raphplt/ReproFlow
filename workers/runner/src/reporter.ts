@@ -5,7 +5,11 @@ import type {
   TestResult,
   TestStep,
 } from "@playwright/test/reporter";
-import { type RunEvidence, RunEvidenceSchema } from "@reproflow/event-schema";
+import {
+  ElementEvidenceSchema,
+  type RunEvidence,
+  RunEvidenceSchema,
+} from "@reproflow/event-schema";
 
 export default class EvidenceReporter implements Reporter {
   private completedSteps = 0;
@@ -22,8 +26,8 @@ export default class EvidenceReporter implements Reporter {
   }
 
   onTestEnd(_test: TestCase, result: TestResult) {
-    const attachment = result.attachments.find(
-      (item) => item.name === "reproflow-evidence",
+    const attachment = result.attachments.find((item) =>
+      ["reproflow-evidence", "reproflow-element-evidence"].includes(item.name),
     );
     const unavailable = result.errors.some((error) =>
       /net::ERR_|browser.*closed|Target.*closed|browser.*crashed/i.test(
@@ -41,7 +45,11 @@ export default class EvidenceReporter implements Reporter {
     try {
       const data: unknown = JSON.parse(attachment?.body?.toString() ?? "null");
       if (!data || typeof data !== "object") return;
-      const parsed = RunEvidenceSchema.safeParse({
+      const schema =
+        attachment?.name === "reproflow-element-evidence"
+          ? ElementEvidenceSchema
+          : RunEvidenceSchema;
+      const parsed = schema.safeParse({
         ...data,
         completedSteps: this.completedSteps,
         durationMs: result.duration,

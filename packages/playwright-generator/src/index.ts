@@ -1,6 +1,8 @@
 import { createHash } from "node:crypto";
 import { type ReplayStep, ScenarioSchema } from "@reproflow/event-schema";
 
+export { generateElement } from "./element.js";
+
 function statement(step: ReplayStep): string {
   switch (step.type) {
     case "goto":

@@ -13,9 +13,10 @@
     "build": "tsc -p tsconfig.build.json",
     "typecheck": "tsc --noEmit",
     "test": "vitest run src",
-    "test:e2e": "vitest run e2e --testTimeout=120000"
+    "test:e2e": "vitest run e2e --testTimeout=120000 --no-file-parallelism"
   },
   "dependencies": {
+    "@reproflow/recorder": "workspace:*",
     "@reproflow/demo-shop": "workspace:*",
     "@reproflow/event-schema": "workspace:*",
     "@reproflow/playwright-generator": "workspace:*",

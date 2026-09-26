@@ -153,3 +153,4 @@ export async function launchRecorder(options: {
     throw error;
   }
 }
+export { captureElement } from "./element.js";

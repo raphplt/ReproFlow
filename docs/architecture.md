@@ -4,6 +4,10 @@
 > Le [brief produit](product-brief.md) décrit la vision ; ce document décrit le code
 > présent dans le dépôt. Les évolutions sont suivies dans la [roadmap](roadmap.md).
 
+> Extension du 26 septembre : un [pilote TCG Nexus](tcg-nexus-pilot.md) ajoute un
+> chemin **composant** en CLI, distinct du workbench v1 décrit ci-dessous. Voir
+> [ADR 0004](decisions/0004-real-component-pilot.md) et la section 19.
+
 ## Sommaire
 
 1. [Objectif et périmètre](#1-objectif-et-périmètre)
@@ -24,6 +28,7 @@
 16. [Tests et intégration continue](#16-tests-et-intégration-continue)
 17. [Limites et évolution](#17-limites-et-évolution)
 18. [Décisions et guide de lecture](#18-décisions-et-guide-de-lecture)
+19. [Pilote composant](#19-pilote-composant)
 
 ## 1. Objectif et périmètre
 
@@ -705,9 +710,10 @@ le workspace hôte. Un résultat local vert ne prouve pas que le job distant a f
 
 ### 17.2 Trajectoire proposée, non implémentée
 
-La prochaine étape est une deuxième application synthétique. Elle permettra de
-définir les abstractions à partir de cas observables plutôt que de multiplier
-les services par anticipation.
+Le premier pilote hors Demo Shop utilise désormais un composant réel de TCG Nexus
+avec un parent synthétique (section 19), puis son parcours Next.js/API complet
+dans un environnement jetable (section 20). La prochaine étape est la capture
+manuelle configurable. Les abstractions restent fondées sur des cas observables.
 
 | Besoin futur | Travail architectural préalable |
 | --- | --- |
@@ -720,9 +726,8 @@ les services par anticipation.
 | Jobs distants | États durables, file d'attente, reprise, quotas et nettoyage contrôlé |
 | Intégrations | Export fondé sur les preuves, permissions et politiques de diffusion |
 
-Next.js, PostgreSQL, Redis/BullMQ et S3 restent des options du brief, pas des
-dépendances ou services déployés. Leur introduction doit répondre à un besoin
-qui dépasse les limites du workflow local déjà prouvé.
+Next.js et PostgreSQL sont utilisés par l'application cible du pilote, pas par
+le service ReproFlow. Redis/BullMQ et S3 restent des options du brief, non déployées.
 
 ## 18. Décisions et guide de lecture
 
@@ -731,6 +736,8 @@ Les décisions structurantes sont conservées séparément :
 - [0001 — Socle du dépôt](decisions/0001-repository-foundation.md).
 - [0002 — Verticale de capture locale](decisions/0002-local-capture-vertical.md).
 - [0003 — Pipeline local et runner Docker](decisions/0003-local-proof-pipeline.md).
+- [0004 — Pilote composant réel](decisions/0004-real-component-pilot.md).
+- [0005 — Application cible jetable](decisions/0005-disposable-application-pilot.md).
 
 Pour suivre le parcours dans le code, commencer par
 [pipeline.ts](../apps/workbench/src/pipeline.ts), puis les
@@ -744,3 +751,82 @@ Le test d'acceptation relie ces frontières en une preuve exécutable.
 Toute évolution du contrat de capture, de l'oracle, de la politique de données
 ou de l'isolation doit mettre à jour ce document, la roadmap et les tests de
 preuve concernés. Une capacité future ne doit pas être présentée comme livrée.
+
+## 19. Pilote composant
+
+Le chemin `pnpm pilot:tcg` n'est pas une migration du workbench v1. Il relie des
+modules dédiés, sans élargir silencieusement les anciens enums Demo Shop :
+
+| Frontière | Implémentation et responsabilité |
+| --- | --- |
+| Adaptateur TCG | `scripts/pilots/tcg-nexus.mjs` compile le vrai composant et un parent React synthétique ; seul l'adaptateur connaît le chemin TCG |
+| Contrat | `packages/event-schema/src/element.ts` définit `ElementScenario`, politique numérique, locators déclarés, oracle confirmé et preuves |
+| Capture scriptée | `apps/recorder/src/element.ts` exécute les actions et lit la valeur rendue, filtrée avant retour ; aucune prétention de recorder manuel |
+| Génération | `packages/playwright-generator/src/element.ts` génère un unique test avec `toHaveValue` ; les chaînes de configuration sont encodées en JSON |
+| Fixture | `workers/runner/src/component-fixture.ts` sert un bundle autonome limité à 4 Mo, sans lecture de fichier hôte |
+| Isolation commune | `workers/runner/src/isolation.ts` conserve les mêmes limites Docker, durée, sortie et annulation pour les deux pipelines |
+| Exécution | `element.ts`, `container.ts`, `reporter.ts` vérifient la source canonique et renvoient uniquement des preuves structurées |
+| Verdict | `element-classify.ts` exige actions terminées, cible unique de type numérique et même écart observé que lors de la capture |
+
+Le contrat v2 contient des actions `click`/`fill` ordonnées, des cibles identifiées
+par clés, un viewport et un oracle de valeur. Les locators supportent test ID,
+rôle/nom, label et placeholder exact. Les valeurs sont des nombres synthétiques
+bornés ou la chaîne vide, avec une allowlist par cible. Les mots de passe et les
+champs d'autres types sont rejetés. Les métadonnées DOM ne sont pas collectées.
+
+Un échec d'oracle n'est `reproduced` que si sa valeur correspond à l'observation
+capturée et diffère de l'attendu confirmé. Cible manquante, ambiguë ou incompatible :
+`generation_failure`. Erreur JavaScript ou runner indisponible :
+`infrastructure_failure`. Valeur masquée ou écart différent : `inconclusive`.
+Le passage de l'assertion avec la valeur attendue donne `not_reproduced`.
+
+L'entrée du conteneur accepte au maximum 8 Mo de JSON encodé pour ce mode ; le
+bundle décodé est limité à 4 Mo. La limite de 100 000 caractères reste appliquée
+aux requêtes Demo Shop. Le bundle est reçu par stdin et servi depuis la mémoire.
+Il n'y a aucun montage du checkout TCG, port publié ni accès réseau externe.
+
+Les artefacts `artifacts/pilots/<uuid>/` ne sont pas chargés par l'historique du
+workbench. Ils incluent le hash du test, celui de chaque bundle et des entrées du
+build. Le pilote vérifie que seul le composant varie entre les builds et conserve
+la version du navigateur par run. Une référence Git du composant ne vaut pas
+reconstruction historique de l'application entière. Voir le
+[guide opératoire](tcg-nexus-pilot.md) pour le détail des preuves et limites.
+
+## 20. Pilote application complète
+
+`scripts/pilots/tcg-stack/build.mjs` archive un checkout TCG propre et committé,
+après exclusion des fichiers dotenv et des sorties de build. Il construit la
+véritable API Nest et deux builds Next standalone : seul `MarketplaceSearch`
+varie, le reste vient du même commit courant. Aucun fichier du dépôt cible n'est
+modifié. L'installation des dépendances et le build nécessitent le réseau ;
+l'exécution des scénarios n'y a jamais accès.
+
+L'image locale contient le moteur ReproFlow, les deux applications, PostgreSQL
+16 et pgvector. `stack.cjs`, adaptateur fixe dans l'image, crée une base vierge,
+initialise le schéma via TypeORM, insère une carte synthétique avec traductions,
+puis démarre API et Next sur loopback. Une passerelle de même origine expose
+ces services au navigateur, uniquement à l'intérieur du conteneur. Aucun port
+n'est publié, aucun volume hôte ni fichier d'environnement n'est monté.
+
+Le contrat v2 distingue `application-value` de `component-value`. Sa configuration
+ajoute chemin d'entrée, cible accessible de disponibilité, chemin de réponse API
+et paramètre de navigation attendu. Capture et test exigent une réponse initiale
+200, la carte visible, une réponse filtrée 200 et l'URL attendue après saisie.
+Sans ces préconditions, le runner renvoie `infrastructure_failure`, jamais une
+reproduction. L'oracle reste uniquement la valeur numérique confirmée du champ.
+Les corps réseau et les logs des services ne deviennent pas des preuves exportées.
+
+`workers/runner/src/application.ts` utilise l'isolation commune avec un profil
+dédié : image épinglée par ID SHA-256, 2 CPU, 2 Go de mémoire, 512 processus,
+512 Mo de tmpfs `/work` et 120 secondes maximum par capture ou rejeu. Les autres
+protections restent identiques : utilisateur non root, filesystem readonly,
+capabilities supprimées, aucun réseau externe, annulation et suppression Docker.
+Les données et logs temporaires disparaissent avec chaque conteneur.
+
+La CLI `pnpm pilot:tcg:stack` capture une fois, génère une seule source et effectue
+trois runs par variante, chacun sur une base neuve. Les artefacts locaux sous
+`artifacts/application-pilots/` conservent provenance Git, hashes de l'archive et
+du composant, identité de l'image, hash du test, version Chromium et preuves
+structurées. Le [guide](tcg-nexus-stack-pilot.md) décrit les commandes et limites.
+Ce flux reste scripté et séparé du workbench ; il ne constitue pas encore un
+recorder manuel configurable ni un service multi-projets.
